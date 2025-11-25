@@ -55,6 +55,8 @@ def search_persons(
                'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
     url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=2&term={text}&{regs}"
     r = requests.get(url)
+    print(r.text)
+    return [{"URL": url, "r": r}]
     hits = json.loads(r.text)
     result = []
     for pers in hits:
@@ -94,3 +96,6 @@ def person_by_id(id: str) -> dict | None:
         'spouse_2_address': f"{hit.get('kadress', '')}, {hit.get('nkadress', '')}",
       }
     return result
+
+#print(search_persons('anders palm'))
+
