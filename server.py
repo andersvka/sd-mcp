@@ -4,14 +4,13 @@ FastMCP slaktdata Server
 """
 
 from fastmcp import FastMCP
-#from mcp.server.fastmcp import FastMCP
-
-# Create server
-mcp = FastMCP("slaktdata")
 import requests
 import json
 
-@mcp.tool()
+# Create server
+mcp = FastMCP("slaktdata")
+
+@mcp.tool
 def search_persons(
     text: str,                             # Required - no default value
     födda: bool | None = None,             # Optional - can be None
@@ -76,7 +75,7 @@ def search_persons(
     return result
 
 
-@mcp.tool()
+@mcp.tool
 def person_by_id(id: str) -> dict | None:
     """Return record by id.
     
@@ -88,19 +87,20 @@ def person_by_id(id: str) -> dict | None:
     hit = json.loads(r.text)['res']
     result = {}
     if hit:
-      result = {  #FIX
-        'source': hit['kalla'],
-        'place_married': hit['fsg'],
-        'id': f"{hit['scbkod']}_{hit['sdsuffix']}_{hit['lopnr']}",
-        'date_married': hit['vdatum'],
-        'spouse_1_title': hit['mtitel'],
-        'spouse_1_first_name': hit['mfnamn'],
-        'spouse_1_last_name': hit['menamn'],
-        'spouse_1_address': f"{hit['madress']}, {hit['nmadress']}",
-        'spouse_2_title': hit['ktitel'],
-        'spouse_2_first_name': hit['kfnamn'],
-        'spouse_2_last_name': hit['kenamn'],
-        'spouse_2_address': f"{hit['kadress']}, {hit['nkadress']}",
+      result = {
+        'id': id,
+        'source': hit.get('kalla', ''),
+        'place_married': hit.get('fsg', ''),
+        'id': f"{hit.get('scbkod', '')}_{hit.get('sdsuffix', '')}_{hit.get('lopnr', '')}",
+        'date_married': hit.get('vdatum', ''),
+        'spouse_1_title': hit.get('mtitel', ''),
+        'spouse_1_first_name': hit.get('mfnamn', ''),
+        'spouse_1_last_name': hit.get('menamn', ''),
+        'spouse_1_address': f"{hit.get('madress', '')}, {hit.get('nmadress', '')}",
+        'spouse_2_title': hit.get('ktitel', ''),
+        'spouse_2_first_name': hit.get('kfnamn', ''),
+        'spouse_2_last_name': hit.get('kenamn', ''),
+        'spouse_2_address': f"{hit.get('kadress', '')}, {hit.get('nkadress', '')}",
       }
     return result
 
