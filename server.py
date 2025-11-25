@@ -1,0 +1,126 @@
+"""
+TEST
+FastMCP slaktdata Server
+"""
+
+#from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
+
+# Create server
+mcp = FastMCP("slaktdata")
+import requests
+import json
+
+@mcp.tool()
+def search_persons(
+    text: str,                             # Required - no default value
+    födda: bool | None = None,             # Optional - can be None
+    vigda: bool | None = None,             # Optional - can be None
+    döda: bool | None = None,              # Optional - can be None
+    husförhör: bool | None = None,         # Optional - can be None
+    in_ut_flyttning: bool | None = None,   # Optional - can be None
+    bouppteckning: bool | None = None,   # Optional - can be None
+    mantalsskrivning: bool | None = None,  # Optional - can be None
+    dombok: bool | None = None,         # Optional - can be None
+) -> list[dict]:
+    """Sök register, avskrivna kyrkböcker hos släktdata
+
+    Args:
+        text: All sökbar text, namn, datum, plats
+        födda: Födelse och dop böcker, CI
+        vigda: Vigselbok, EI
+        döda: Dödbok, FI
+        husförhör: Husförhörslängd eller församlingsbok, AI, AII
+        in_ut_flyttning: Flyttlängd BI, BII
+        bouppteckning: Bouppteckningar
+        mantalsskrivning: Mantalsskrivningslängder
+        dombok: Domböcker
+
+    Returns:
+        Lista av matchande personer, varje representerad som ett JSON dictionary.
+        Om inga matchningar är hittade, returneras en tom lista.
+    """
+    reglist = []
+    reglist.append('rtypff=true') if födda else reglist.append('rtypff=false')
+    reglist.append('rtypfv=true') if vigda else reglist.append('rtypfv=false')
+    reglist.append('rtypfd=true') if döda else reglist.append('rtypfd=false')
+    reglist.append('rtypfh=true') if husförhör else reglist.append('rtypfh=false')
+    reglist.append('rtypfiu=true') if in_ut_flyttning else reglist.append('rtypfiu=false')
+    reglist.append('rtypfb=true') if bouppteckning else reglist.append('rtypfb=false')
+    reglist.append('rtypfm=true') if mantalsskrivning else reglist.append('rtypfm=false')
+    reglist.append('rtypfj=true') if dombok else reglist.append('rtypfj=false')
+    regs = '&'.join(reglist)
+    if not text or not regs:
+        return []
+    typ_map = {'F': 'födda', 'V': 'vigda', 'D': 'döda', 'H': 'husförhör',
+               'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
+    #url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&rtypff=false&rtypfv=true&rtypfd=false&rtypfh=false&rtypfiu=false&rtypfb=false&rtypfm=false&rtypfj=false"
+    url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&{regs}"
+    r = requests.get(url)
+    hits = json.loads(r.text)
+    result = []
+    for pers in hits:
+        person = {
+            #FIX
+            'id': pers['id'],
+            'plats': pers['fsg'],
+            'datum': pers['f_d_datum'],
+            'namn': pers['namn'],
+            'mannens_namn': pers['mnamn'],
+            'kvinnans_namn': pers['knamn'],
+            'typ_av_register': typ_map[pers['sdsuffix'][0]],
+            'källa': pers['kalla'],
+            'genväg_aid': pers['bildaid'],
+        }
+        result.append(person)
+    return result
+
+
+@mcp.tool()
+def person_by_id(id: str) -> dict | None:
+    """Return record by id.
+    
+    Args:
+        id: Record ID
+    """
+    url = f"https://www.slaktdata.org/?p=getregbyid&sldid={id}"
+    r = requests.get(url)
+    hit = json.loads(r.text)['res']
+    result = {}
+    if hit:
+      result = {  #FIX
+        'source': hit['kalla'],
+        'place_married': hit['fsg'],
+        'id': f"{hit['scbkod']}_{hit['sdsuffix']}_{hit['lopnr']}",
+        'date_married': hit['vdatum'],
+        'spouse_1_title': hit['mtitel'],
+        'spouse_1_first_name': hit['mfnamn'],
+        'spouse_1_last_name': hit['menamn'],
+        'spouse_1_address': f"{hit['madress']}, {hit['nmadress']}",
+        'spouse_2_title': hit['ktitel'],
+        'spouse_2_first_name': hit['kfnamn'],
+        'spouse_2_last_name': hit['kenamn'],
+        'spouse_2_address': f"{hit['kadress']}, {hit['nkadress']}",
+      }
+    return result
+
+
+# Run the MCP server locally
+if __name__ == '__main__':
+    mcp.run(transport="http", host="192.168.2.13", port=8007)
+
+"""
+#TEST
+res = search_persons('Anders olof Palm 1875 torp', födda=True, döda=True, husförhör=True )
+print(f"Hits = {len(res)}")
+i = 1
+for hit in res:
+    print(i, hit)
+    i += 1
+
+n = 8 #se rec 8
+
+print(res[n])
+rec = person_by_id(res[n]['id'])
+print(rec)
+"""

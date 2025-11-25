@@ -1,0 +1,10 @@
+[project]
+name = "disbyt-mcp"
+version = "0.1.0"
+description = "A Model Context Protocol server frontend for Disbyt."
+authors = ["iNick"]
+dependencies = [
+    "fastmcp>=2.13.1",
+    "requests",
+    "json",
+]
