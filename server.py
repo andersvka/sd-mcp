@@ -56,7 +56,7 @@ def search_persons(
     url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=2&term={text}&{regs}"
     r = requests.get(url)
     print(r.text)
-    return [{"URL": url, "r": r}]
+    return [{"URL": url, "r": r.text}]
     hits = json.loads(r.text)
     result = []
     for pers in hits:
