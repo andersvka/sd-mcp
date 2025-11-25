@@ -3,8 +3,8 @@ TEST
 FastMCP slaktdata Server
 """
 
-#from fastmcp import FastMCP
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
+#from mcp.server.fastmcp import FastMCP
 
 # Create server
 mcp = FastMCP("slaktdata")
@@ -54,7 +54,7 @@ def search_persons(
         return []
     typ_map = {'F': 'födda', 'V': 'vigda', 'D': 'döda', 'H': 'husförhör',
                'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
-    #url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&rtypff=false&rtypfv=true&rtypfd=false&rtypfh=false&rtypfiu=false&rtypfb=false&rtypfm=false&rtypfj=false"
+    #url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=100&term={text}&rtypff=false&rtypfv=true&rtypfd=false&rtypfh=false&rtypfiu=false&rtypfb=false&rtypfm=false&rtypfj=false"
     url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&{regs}"
     r = requests.get(url)
     hits = json.loads(r.text)
@@ -105,11 +105,11 @@ def person_by_id(id: str) -> dict | None:
     return result
 
 
+"""
 # Run the MCP server locally
 if __name__ == '__main__':
     mcp.run(transport="http", host="192.168.2.13", port=8007)
 
-"""
 #TEST
 res = search_persons('Anders olof Palm 1875 torp', födda=True, döda=True, husförhör=True )
 print(f"Hits = {len(res)}")
