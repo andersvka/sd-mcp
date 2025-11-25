@@ -5,6 +5,5 @@ description = "A Model Context Protocol server frontend for Disbyt."
 authors = ["iNick"]
 dependencies = [
     "fastmcp>=2.13.1",
-    "requests",
-    "json",
+    "requests>=2.32.5",
 ]
