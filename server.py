@@ -18,9 +18,9 @@ def search_persons(
     döda: bool | None = None,              # Optional - can be None
     husförhör: bool | None = None,         # Optional - can be None
     in_ut_flyttning: bool | None = None,   # Optional - can be None
-    bouppteckning: bool | None = None,   # Optional - can be None
+    bouppteckning: bool | None = None,     # Optional - can be None
     mantalsskrivning: bool | None = None,  # Optional - can be None
-    dombok: bool | None = None,         # Optional - can be None
+    dombok: bool | None = None,            # Optional - can be None
 ) -> list[dict]:
     """Sök register, avskrivna kyrkböcker hos släktdata
 
@@ -53,23 +53,14 @@ def search_persons(
         return []
     typ_map = {'F': 'födda', 'V': 'vigda', 'D': 'döda', 'H': 'husförhör',
                'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
-    #url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=100&term={text}&rtypff=false&rtypfv=true&rtypfd=false&rtypfh=false&rtypfiu=false&rtypfb=false&rtypfm=false&rtypfj=false"
-    url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&{regs}"
+    url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=2&term={text}&{regs}"
     r = requests.get(url)
     hits = json.loads(r.text)
     result = []
     for pers in hits:
         person = {
-            #FIX
-            'id': pers['id'],
-            'plats': pers['fsg'],
-            'datum': pers['f_d_datum'],
-            'namn': pers['namn'],
-            'mannens_namn': pers['mnamn'],
-            'kvinnans_namn': pers['knamn'],
-            'typ_av_register': typ_map[pers['sdsuffix'][0]],
-            'källa': pers['kalla'],
-            'genväg_aid': pers['bildaid'],
+            "id": pers['id'],
+            "name": pers['namn'],
         }
         result.append(person)
     return result
@@ -88,7 +79,7 @@ def person_by_id(id: str) -> dict | None:
     result = {}
     if hit:
       result = {
-        'id': id,
+        "id": id,
         'source': hit.get('kalla', ''),
         'place_married': hit.get('fsg', ''),
         'id': f"{hit.get('scbkod', '')}_{hit.get('sdsuffix', '')}_{hit.get('lopnr', '')}",
@@ -103,24 +94,3 @@ def person_by_id(id: str) -> dict | None:
         'spouse_2_address': f"{hit.get('kadress', '')}, {hit.get('nkadress', '')}",
       }
     return result
-
-
-"""
-# Run the MCP server locally
-if __name__ == '__main__':
-    mcp.run(transport="http", host="192.168.2.13", port=8007)
-
-#TEST
-res = search_persons('Anders olof Palm 1875 torp', födda=True, döda=True, husförhör=True )
-print(f"Hits = {len(res)}")
-i = 1
-for hit in res:
-    print(i, hit)
-    i += 1
-
-n = 8 #se rec 8
-
-print(res[n])
-rec = person_by_id(res[n]['id'])
-print(rec)
-"""
