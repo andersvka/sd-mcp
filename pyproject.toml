@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "A Model Context Protocol server frontend for Slaktdata."
 authors = ["AA0"]
 dependencies = [
-    "fastmcp>=2.13.1",
+    "simplejson",
     "requests>=2.32.5",
-    "simplejson>=3.18.3",
 ]
