@@ -5,7 +5,7 @@ FastMCP slaktdata Server
 
 from fastmcp import FastMCP
 import requests
-import json
+import simplejson
 
 # Create server
 mcp = FastMCP("slaktdata")
@@ -55,7 +55,7 @@ def search_persons(
                'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
     url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=2&term={text}&{regs}"
     r = requests.get(url)
-    hits = json.loads(r.text)
+    hits = simplejson.loads(r.text)
     return [{"r": r, "URL": url}]
     #return [{"name": x['namn'], "score": x['score'], "id": x['id']} for x in hits]
     result = []
@@ -77,7 +77,7 @@ def person_by_id(id: str) -> dict | None:
     """
     url = f"https://www.slaktdata.org/?p=getregbyid&sldid={id}"
     r = requests.get(url)
-    hit = json.loads(r.text)['res']
+    hit = simplejson.loads(r.text)['res']
     result = {}
     if hit:
       result = {

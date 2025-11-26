@@ -6,4 +6,5 @@ authors = ["AA0"]
 dependencies = [
     "fastmcp>=2.13.1",
     "requests>=2.32.5",
+    "simplejson>=3.18.3",
 ]
