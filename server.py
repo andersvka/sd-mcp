@@ -53,20 +53,29 @@ def search_persons(
         return []
     typ_map = {'F': 'födda', 'V': 'vigda', 'D': 'döda', 'H': 'husförhör',
                'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
-    url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=2&term={text}&{regs}"
+    url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&{regs}"
     r = requests.get(url)
+    
     hits = simplejson.loads(r.text)
-    return [{"r": r, "URL": url}]
-    #return [{"name": x['namn'], "score": x['score'], "id": x['id']} for x in hits]
+    return [ {"name": x['mnamn'], "score": x['score'], "id": x['id']} for x in hits ]
+    """
     result = []
     for pers in hits:
         person = {
-            "id": pers['id'],
-            "name": pers['namn'],
+            #FIX
+            'id': pers['id'],
+            'plats': pers['fsg'],
+            'datum': pers['f_d_datum'],
+            'namn': pers['namn'],
+            'mannens_namn': pers['mnamn'],
+            'kvinnans_namn': pers['knamn'],
+            'typ_av_register': typ_map[pers['sdsuffix'][0]],
+            'källa': pers['kalla'],
+            'genväg_aid': pers['bildaid'],
         }
         result.append(person)
     return result
-
+    """
 
 @mcp.tool
 def person_by_id(id: str) -> dict | None:
@@ -81,7 +90,7 @@ def person_by_id(id: str) -> dict | None:
     result = {}
     if hit:
       result = {
-        "id": id,
+        'id': id,
         'source': hit.get('kalla', ''),
         'place_married': hit.get('fsg', ''),
         'id': f"{hit.get('scbkod', '')}_{hit.get('sdsuffix', '')}_{hit.get('lopnr', '')}",
@@ -96,6 +105,3 @@ def person_by_id(id: str) -> dict | None:
         'spouse_2_address': f"{hit.get('kadress', '')}, {hit.get('nkadress', '')}",
       }
     return result
-
-#print(search_persons('anders palm'))
-

@@ -1,6 +1,0 @@
-[project]
-name = "sd-mcp"
-version = "0.1.0"
-description = "A Model Context Protocol server frontend for Slaktdata."
-authors = ["AA0"]
-dependencies = [ "simplejson", "requests" ]
