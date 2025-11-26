@@ -55,7 +55,7 @@ def search_persons(
                'I': 'in_ut_flyttning', 'B': 'bouppteckning', 'M': 'mantalsskrivning', 'J': 'dombok'}
     url = f"https://www.slaktdata.org/getFreetextRows.php?maxres=25&term={text}&{regs}"
     r = requests.get(url)
-    
+    return [ {"r.text": r.text, "typ": type(r.text), "URL": url} ]
     hits = simplejson.loads(r.text)
     return [ {"name": x['mnamn'], "score": x['score'], "id": x['id']} for x in hits ]
     """
